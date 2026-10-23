@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Смены</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#fff;--card:#f2f3f5;--tx:#14171c;--hint:#6b7280;--ac:#3b6cf6;--actx:#fff;--ok:#2faa6a;--bad:#e5484d;--am:#f0a030;--ye:#f4d03f;--r:16px}
+@media(prefers-color-scheme:dark){:root{--bg:#111315;--card:#1b1e22;--tx:#f1f2f4;--hint:#8b93a0}}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);padding:16px 16px 160px}
+button,input,textarea{font:inherit;color:inherit}
+h2{font-size:22px;margin-bottom:14px}
+.hint{color:var(--hint);font-size:13px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.sh{font-size:15px;margin:2px 0 8px}
+.stats.two{grid-template-columns:1fr 1fr}
+.stat{background:var(--card);border-radius:var(--r);padding:12px 10px;min-width:0}
+.stat b{display:block;font-size:18px;margin-top:2px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.ch b{font-size:17px}
+.ch button{background:none;border:0;font-size:24px;padding:4px 14px;color:var(--hint)}
+.g{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wd{text-align:center;font-size:12px;color:var(--hint);padding:4px 0}
+.d{min-height:58px;padding:4px 0;border:0;border-radius:12px;background:none;font-variant-numeric:tabular-nums;font-size:14px;line-height:1.2}
+.d small{display:block;font-size:10px;white-space:nowrap}
+.d small.tp{opacity:.8}
+.d.t{box-shadow:inset 0 0 0 1.5px var(--ac)}
+.d.done{background:var(--ok);color:#fff}
+.d.plan{background:var(--bad);color:#fff}
+.d.side{background:var(--ye);color:#14171c}
+.leg{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px}
+.leg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(6px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--card)}
+.add{width:100%;height:50px;border:0;border-radius:var(--r);background:var(--ac);color:var(--actx);font-weight:600}
+.sec{width:100%;height:46px;border:0;border-radius:var(--r);background:var(--card);margin-top:8px}
+.del{width:100%;height:44px;border:0;background:none;color:var(--bad);margin-top:4px}
+.tabs{display:flex;margin-top:4px}
+.tabs button{flex:1;background:none;border:0;padding:8px;color:var(--hint)}
+.tabs .on{color:var(--tx);font-weight:600}
+.back{background:none;border:0;color:var(--ac);padding:4px 0;margin-bottom:8px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.fg label{font-size:13px;color:var(--hint);min-width:0}
+.fg .f1{grid-column:1/-1}
+input,textarea{display:block;width:100%;margin-top:4px;padding:12px;border:0;border-radius:12px;background:var(--card);color:var(--tx);font-size:16px}
+.prev{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.prev div{background:var(--card);border-radius:var(--r);padding:12px}
+.prev b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px}
+.chip{flex:none;border:0;background:var(--card);border-radius:20px;padding:8px 14px;font-size:14px}
+.chip.on{background:var(--ac);color:var(--actx)}
+.chip.on.sd{background:var(--ye);color:#14171c}
+.rng{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.rng input{margin:0}
+.sb{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:8px 0}
+.box{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.box h3{font-size:15px;margin-bottom:6px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:14px}
+svg{width:100%;height:auto}
+svg text{fill:var(--hint);font-size:9px}
+.br{fill:var(--ac)}
+.empty{text-align:center;margin:28px 0}
+.pgr{display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:var(--r);padding:4px;margin:2px 0 10px}
+.pgr button{background:none;border:0;font-size:26px;line-height:1;width:48px;height:42px;color:var(--hint)}
+.pgr .pt{text-align:center}
+.pgr .pt b{display:flex;align-items:center;justify-content:center;font-size:15px}
+.pgr .pt i{width:9px;height:9px;border-radius:50%;margin-right:7px}
+.dots{display:flex;gap:5px;justify-content:center;margin-top:5px}
+.dots u{width:6px;height:6px;border-radius:50%;background:var(--hint);opacity:.35}
+.dots u.on{opacity:1;background:var(--ac)}.dots u.sd.on{background:var(--ye)}
+.dl{display:inline-block;margin-top:5px;padding:1px 8px;border-radius:9px;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+.dl.up{color:var(--ok);background:rgba(47,170,106,.15)}.dl.dn{color:var(--bad);background:rgba(229,72,77,.15)}.dl.fl{color:var(--hint);background:rgba(128,128,128,.15)}
+.pg.inR{animation:inR .22s ease}.pg.inL{animation:inL .22s ease}
+@keyframes inR{from{opacity:0;transform:translateX(28px)}}
+@keyframes inL{from{opacity:0;transform:translateX(-28px)}}
+#toast{position:fixed;top:12px;left:50%;transform:translate(-50%,-80px);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;transition:transform .2s;z-index:9}
+#toast.on{transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){#toast{transition:none}.pg{animation:none!important}}
+</style></head><body>
+<div id="toast"></div>
+<div id="app"></div>
+<div class="bar"><button class="add" data-a="add">Добавить смену</button><div class="tabs"></div></div>
+<script>
+const tg=window.Telegram&&Telegram.WebApp;
+const cs=tg&&tg.CloudStorage&&tg.isVersionAtLeast&&tg.isVersionAtLeast('6.9')?tg.CloudStorage:null;
+const pr=(f,...a)=>new Promise((ok,no)=>{const t=setTimeout(()=>no('timeout'),6000);f.call(cs,...a,(e,v)=>{clearTimeout(t);e?no(e):ok(v)})});
+const $=s=>document.querySelector(s),app=$('#app');
+const nat=tg&&tg.platform&&tg.platform!=='unknown',BB=nat&&tg.isVersionAtLeast('6.1')?tg.BackButton:null,MB=nat?tg.MainButton:null;
+const pad=n=>String(n).padStart(2,'0');
+const ds=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const pd=s=>{const[a,b,c]=s.split('-');return new Date(a,b-1,c)};
+const num=v=>{const n=parseFloat(String(v).replace(/\s/g,'').replace(',','.'));return isFinite(n)?n:0};
+const fmt=(n,d=0)=>n.toLocaleString('ru-RU',{maximumFractionDigits:d});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
+const cur=()=>S.set.cur||'₽';
+const mo=n=>n==null?'—':fmt(n)+' '+cur();
+const earn=s=>s.rate*s.hours+s.tips+s.rev*s.pct/100;
+const WD=['понедельник','вторник','среда','четверг','пятница','суббота','воскресенье'];
+let S={shifts:{},set:{rate:0,pct:0,cur:'₽'}};
+let loaded=false,cloudFail=false,q=Promise.resolve();
+let V={tab:'main',m:new Date(),per:'30',from:'',to:'',edit:null,job:'main',sj:'main',dir:'',date:ds(new Date())};
+
+function hap(t){try{tg.HapticFeedback.impactOccurred(t||'light')}catch(e){}}
+function ask(m,f){if(tg&&tg.showConfirm&&tg.isVersionAtLeast('6.2'))tg.showConfirm(m,y=>y&&f());else if(confirm(m))f()}
+function ok(){try{tg.HapticFeedback.notificationOccurred('success')}catch(e){}}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2200)}
+function theme(){const p=tg&&tg.themeParams||{},r=document.documentElement.style;
+ const m={bg_color:'--bg',secondary_bg_color:'--card',text_color:'--tx',hint_color:'--hint',button_color:'--ac',button_text_color:'--actx'};
+ for(const k in m)if(p[k])r.setProperty(m[k],p[k]);
+ try{if(tg.isVersionAtLeast('6.1'))tg.setHeaderColor('bg_color')}catch(e){}}
+
+async function load(){let raw=null;
+ try{if(cs){const n=+await pr(cs.getItem,'wd_n')||0;
+  if(n){const ks=[...Array(n).keys()].map(i=>'wd_'+i),o=await pr(cs.getItems,ks);raw=ks.map(k=>o[k]).join('')}}}catch(e){cloudFail=true}
+ if(!raw)try{raw=localStorage.getItem('wd')}catch(e){}
+ try{if(raw){const o=JSON.parse(raw);S={shifts:o.shifts||{},set:Object.assign(S.set,o.set)}}}catch(e){if(raw&&cs)cloudFail=true}}
+function save(){const raw=JSON.stringify(S);
+ try{localStorage.setItem('wd',raw)}catch(e){}
+ if(!cs||cloudFail)return q;
+ return q=q.then(async()=>{const ps=raw.match(/[\s\S]{1,3000}/g)||[];
+  await Promise.all(ps.map((p,i)=>pr(cs.setItem,'wd_'+i,p)));
+  await pr(cs.setItem,'wd_n',String(ps.length))}).catch(()=>toast('Не удалось сохранить в облако'))}
+
+const done=()=>Object.entries(S.shifts).filter(([,s])=>s.st==='done').map(([d,s])=>({d,...s,e:earn(s)}));
+function tot(l){const t={n:l.length,h:0,e:0,tips:0,rev:0,base:0,pc:0};
+ l.forEach(s=>{t.h+=s.hours;t.e+=s.e;t.tips+=s.tips;t.rev+=s.rev;t.base+=s.rate*s.hours;t.pc+=s.rev*s.pct/100});
+ t.ph=t.h?t.e/t.h:null;return t}
+
+function main(){
+ const y=V.m.getFullYear(),m=V.m.getMonth(),off=(new Date(y,m,1).getDay()+6)%7,
+  days=new Date(y,m+1,0).getDate(),today=ds(new Date()),ym=y+'-'+pad(m+1);
+ const mt=tot(done().filter(s=>s.d.startsWith(ym))),t=mt;
+ let g=['пн','вт','ср','чт','пт','сб','вс'].map(x=>`<div class=wd>${x}</div>`).join('')+'<div></div>'.repeat(off);
+ for(let i=1;i<=days;i++){const d=ym+'-'+pad(i),s=S.shifts[d];
+  const dn=s&&s.st==='done',inner=dn?`${i}<small><b>${fmt(Math.round(earn(s)))}</b></small><small class=tp>+${fmt(Math.round(s.tips))}</small>`:i;
+  g+=`<button class="d${s?(s.job==='side'?' side':dn?' done':' plan'):''}${d===today?' t':''}" data-a=day data-d=${d}>${inner}</button>`}
+ const title=V.m.toLocaleDateString('ru-RU',{month:'long',year:'numeric'}).replace(' г.','');
+ return `<div class=stats>
+ <div class=stat><span class=hint>Заработано</span><b>${mo(Math.round(t.e))}</b></div>
+ <div class=stat><span class=hint>Чаевые</span><b>${mo(Math.round(t.tips))}</b></div>
+ <div class=stat><span class=hint>Заработок в час</span><b>${mo(t.ph&&Math.round(t.ph))}</b></div>
+ <div class=stat><span class=hint>Отработано часов</span><b>${fmt(t.h,1)}</b></div></div>
+ <div class=ch><button data-a=prev>‹</button><b data-a=today>${title[0].toUpperCase()+title.slice(1)}</b><button data-a=next>›</button></div>
+ <div class=g>${g}</div>
+ <div class="leg hint"><span><i style="background:var(--ok)"></i>Внесено: заработок и чаевые</span><span><i style="background:var(--bad)"></i>Нужно внести</span><span><i style="background:var(--ye)"></i>Подработка</span></div>
+ <p class=hint style="margin-top:14px">${mt.n?`За месяц: ${mo(Math.round(mt.e))}, смен: ${mt.n}`:Object.keys(S.shifts).length?'В этом месяце пока нет отработанных смен.':'Пока нет смен. Нажмите на дату или «Добавить смену».'}</p>`}
+
+function form(){
+ const s=V.edit?S.shifts[V.edit]||{}:{},dn=s.st==='done',c=cur(),v=n=>n==null?'':String(n).replace('.',',');
+ return `${BB?'':'<button class=back data-a=back>‹ Назад</button>'}<h2>${V.edit?'Смена':'Новая смена'}</h2>
+ <div class=fg>
+ <div class=f1><span class=hint style="font-size:13px">Работа</span><div class=chips id=fj style="margin:4px 0 0">${[['main','Основная работа'],['side','Подработка']].map(([k,n])=>`<button class="chip${V.job===k?' on':''}${k==='side'?' sd':''}" data-a=job data-j=${k}>${n}</button>`).join('')}</div></div>
+ <label class=f1>Дата<input type=date id=fd value="${V.edit||V.date}"></label>
+ <label>Длительность, ч<input id=fh inputmode=decimal placeholder="7,5" value="${dn?v(s.hours):''}"></label>
+ <label>Ставка в час, ${esc(c)}<input id=fr inputmode=decimal value="${v(dn?s.rate:S.set.rate)}"></label>
+ <label>Чаевые, ${esc(c)}<input id=ft inputmode=decimal placeholder="0" value="${dn?v(s.tips):''}"></label>
+ <label>Выручка на карту, ${esc(c)}<input id=fv inputmode=decimal placeholder="0" value="${dn?v(s.rev):''}"></label>
+ <label class=f1>Процент с выручки, %<input id=fp inputmode=decimal value="${v(dn?s.pct:S.set.pct)}"></label></div>
+ <div class=prev><div><span class=hint>За смену</span><b id=pe>—</b></div><div><span class=hint>В час</span><b id=ph>—</b></div></div>
+ ${MB?'':'<button class=add data-a=save>Сохранить смену</button>'}
+ <button class=sec data-a=plan>Запланировать без данных</button>
+ ${V.edit?'<button class=del data-a=del>Удалить смену</button>':''}`}
+function rd(){return{hours:num($('#fh').value),rate:num($('#fr').value),tips:num($('#ft').value),rev:num($('#fv').value),pct:num($('#fp').value)}}
+function prev(){const s=rd(),e=earn(s);$('#pe').textContent=mo(Math.round(e));$('#ph').textContent=s.hours?mo(Math.round(e/s.hours)):'—'}
+
+function range(){if(V.per==='all')return[null,null];if(V.per==='c')return[V.from||null,V.to||null];
+ const f=new Date();f.setDate(f.getDate()-(+V.per)+1);return[ds(f),ds(new Date())]}
+function prevRange(){if(V.per==='all')return null;const[f,t]=range();if(!f||!t)return null;
+ const a=pd(f),n=Math.round((pd(t)-a)/864e5)+1,e=new Date(a),s=new Date(a);e.setDate(e.getDate()-1);s.setDate(s.getDate()-n);return[ds(s),ds(e)]}
+function dl(c,p,n,pp){if(p==null)return'';let v;if(pp)v=c-p;else{if(!p)return'';v=(c-p)/p*100}
+ const r=Math.abs(v)<10?Math.round(v*10)/10:Math.round(v),k=r===0||n?'fl':v>0?'up':'dn';
+ return`<span class="dl ${k}">${r>0?'↑':r<0?'↓':'='} ${fmt(Math.abs(r),1)}${pp?' п.п.':'%'}</span>`}
+function sjump(d){V.sj=V.sj==='main'?'side':'main';V.dir=d>0?'inR':'inL';render();V.dir=''}
+function stats(){
+ const[f,to]=range(),l=done().filter(s=>(!f||s.d>=f)&&(!to||s.d<=to)),t=tot(l);
+ const PER=[['7','7 дней'],['30','30 дней'],['90','3 мес.'],['365','Год'],['all','Всё время'],['c','Даты']];
+ let h='<h2>Аналитика</h2><div class=chips>'+PER.map(([k,n])=>`<button class="chip${V.per===k?' on':''}" data-a=per data-p=${k}>${n}</button>`).join('')+'</div>';
+ if(V.per==='c')h+=`<div class=rng><input type=date id=pf value="${V.from}"><input type=date id=pt value="${V.to}"></div>`;
+ if(!t.n)return h+'<p class="hint empty">Нет смен с данными за этот период.</p>';
+ const C=l=>'<div class=stats>'+l.map(([a,b,c])=>`<div class=stat><span class=hint>${a}</span><b>${b}</b>${c||''}</div>`).join('')+'</div>';
+ const J={main:tot(l.filter(s=>s.job!=='side')),side:tot(l.filter(s=>s.job==='side'))},R0=Math.round;
+ const side=V.sj==='side',jf=s=>(s.job==='side')===side,x=J[V.sj],pv=prevRange(),lp=pv&&done().filter(s=>s.d>=pv[0]&&s.d<=pv[1]),pj=lp&&tot(lp.filter(jf)),pn=pj&&pj.n?pj:null,D=(c,p,n,pp)=>pn?dl(c,p,n,pp):'';
+ const pager=`<div class=pgr><button data-a=sj data-d=-1 aria-label="Назад">‹</button><div class=pt><b><i style="background:var(${side?'--ye':'--ac'})"></i>${side?'Подработка':'Основная работа'}</b><span class=dots><u class="${side?'':'on'}"></u><u class="sd${side?' on':''}"></u></span></div><button data-a=sj data-d=1 aria-label="Вперёд">›</button></div>`;
+ let pg;if(!x.n)pg=`<p class="hint empty">Нет смен ${side?'подработки':'основной работы'} за этот период.</p>`;else{
+  const tc=x.rev?x.tips/x.rev*100:null,tp=pn&&pn.rev?pn.tips/pn.rev*100:null,pa=pn?pn.h/pn.n:null,
+  note=!pv?'':pn?`Сравнение с предыдущим периодом: ${pv[0].slice(8)}.${pv[0].slice(5,7)}–${pv[1].slice(8)}.${pv[1].slice(5,7)}`:'За предыдущий период нет смен для сравнения';
+  pg=(note?`<p class=hint style="margin:0 0 8px">${note}</p>`:'')+'<h3 class=sh>В среднем</h3>'+C([['Чаевые за смену',mo(R0(x.tips/x.n)),D(x.tips/x.n,pn&&pn.tips/pn.n)],['Заработок за смену',mo(R0(x.e/x.n)),D(x.e/x.n,pn&&pn.e/pn.n)],['Заработок за час',mo(R0(x.ph)),D(x.ph,pn&&pn.ph)],['Длительность смены',fmt(x.h/x.n,1)+' ч',D(x.h/x.n,pa,1)]])+
+  '<h3 class=sh>Всего за период</h3>'+C([['Заработано',mo(R0(x.e)),D(x.e,pn&&pn.e)],['Зарплата',mo(R0(x.base+x.pc)),D(x.base+x.pc,pn&&pn.base+pn.pc)],['Чаевые',mo(R0(x.tips)),D(x.tips,pn&&pn.tips)],['Чаевые, % от выручки',tc==null?'—':fmt(tc,1)+' %',tc==null?'':D(tc,tp,0,1)],['Выручка на карту',mo(R0(x.rev)),D(x.rev,pn&&pn.rev)],['Процент с выручки',mo(R0(x.pc)),D(x.pc,pn&&pn.pc)],['Отработано',fmt(x.h,1)+' ч',D(x.h,pn&&pn.h,1)],['Смен',x.n,D(x.n,pn&&pn.n,1)]])}
+ h+=pager+`<div class="pg ${V.dir}">${pg}</div>`;
+ if(t.e>0){const M=J.main,P=[['Ставка',M.base,'var(--ac)'],['Чаевые',M.tips,'var(--ok)'],['Процент с выручки',M.pc,'var(--am)'],['Подработка',J.side.e,'var(--ye)']];
+  h+=`<div class=box><h3>Из чего складывается доход</h3><div class=sb>${P.map(([,v,c])=>`<div style="width:${v/t.e*100}%;background:${c}"></div>`).join('')}</div>`+
+   P.map(([n,v,c])=>`<div class=row><span><i style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${c};margin-right:8px"></i>${n}</span><span>${Math.round(v/t.e*100)}%</span></div>`).join('')+'</div>'}
+ const dts=l.map(s=>s.d).sort(),wk=(pd(dts[dts.length-1])-pd(dts[0]))/864e5<=120,B={};
+ l.forEach(s=>{let k;if(wk){const x=pd(s.d);x.setDate(x.getDate()-(x.getDay()+6)%7);k=ds(x)}else k=s.d.slice(0,7);B[k]=(B[k]||0)+s.e});
+ const ks=Object.keys(B).sort(),mx=Math.max(...ks.map(k=>B[k]))||1,w=320/ks.length,bw=Math.min(w*.62,40);
+ const bars=ks.map((k,i)=>{const hh=Math.max(2,B[k]/mx*68),x=i*w+(w-bw)/2,lb=wk?k.slice(8)+'.'+k.slice(5,7):k.slice(5,7)+'.'+k.slice(2,4);
+  return `<rect class=br x=${x} y=${88-hh} width=${bw} height=${hh} rx=4 />`+(ks.length<=8?`<text x=${x+bw/2} y=${84-hh} text-anchor=middle>${fmt(B[k])}</text>`:'')+((ks.length<=12||i%2==0)?`<text x=${x+bw/2} y=104 text-anchor=middle>${lb}</text>`:'')}).join('');
+ h+=`<div class=box><h3>Заработок ${wk?'по неделям':'по месяцам'}</h3><svg viewBox="0 0 320 110">${bars}</svg></div>`;
+ const so=[...l].sort((a,b)=>b.e-a.e),sh=s=>`${s.d.slice(8)}.${s.d.slice(5,7)}: ${mo(Math.round(s.e))} (${mo(Math.round(s.e/s.hours))}/ч)`;
+ const W={};l.forEach(s=>{const i=(pd(s.d).getDay()+6)%7;W[i]=W[i]||[0,0];W[i][0]+=s.e;W[i][1]+=s.hours});
+ const wl=Object.entries(W).filter(([,v])=>v[1]>0).map(([i,v])=>[i,v[0]/v[1]]).sort((a,b)=>b[1]-a[1]);
+ const R=(a,b)=>`<div class=row><span class=hint>${a}</span><span>${b}</span></div>`;
+ h+='<div class=box>'+R('Лучшая смена',sh(so[0]))+(so.length>1?R('Худшая смена',sh(so[so.length-1])):'')+
+  R('Лучший день недели',`${WD[wl[0][0]]}, ${mo(Math.round(wl[0][1]))}/ч`)+(wl.length>1?R('Худший день недели',`${WD[wl[wl.length-1][0]]}, ${mo(Math.round(wl[wl.length-1][1]))}/ч`):'')+'</div>';
+ return h}
+
+function settings(){return `<h2>Настройки</h2><div class=fg>
+ <label>Ставка в час по умолчанию<input data-s=rate inputmode=decimal value="${String(S.set.rate||'').replace('.',',')}"></label>
+ <label>Процент с выручки по умолчанию<input data-s=pct inputmode=decimal value="${String(S.set.pct||'').replace('.',',')}"></label>
+ <label class=f1>Валюта<input data-s=cur maxlength=4 value="${esc(cur())}"></label></div>
+ <div class=box><h3>Копия данных</h3><p class=hint style="margin-bottom:8px">Экспорт копирует все смены в текст. Для импорта вставьте такой текст в поле.</p>
+ <textarea id=io rows=4></textarea><button class=sec data-a=exp>Экспорт</button><button class=sec data-a=imp>Импорт</button></div>`}
+
+function nav(){const f=V.tab==='form'&&loaded;if(BB)f?BB.show():BB.hide();if(MB)f?MB.show():MB.hide()}
+function saveShift(){if(V.tab!=='form')return;const s=rd();if(s.hours<=0)return toast('Укажите длительность смены');put(0,{st:'done',...s})}
+function mshift(n){V.m=new Date(V.m.getFullYear(),V.m.getMonth()+n,1);render()}
+function render(){
+ $('.bar').style.display=V.tab==='form'?'none':'';
+ $('.tabs').innerHTML=[['main','Главная'],['stats','Аналитика'],['set','Настройки']].map(([k,n])=>`<button class="${V.tab===k?'on':''}" data-a=tab data-t=${k}>${n}</button>`).join('');
+ nav();if(!loaded){app.innerHTML='<p class="hint empty">Загрузка…</p>';return}
+ app.innerHTML=V.tab==='main'?main():V.tab==='stats'?stats():V.tab==='set'?settings():form();
+ if(V.tab==='form'){prev();scrollTo(0,0)}}
+
+function put(key,val){const nd=$('#fd').value||V.date;if(V.edit&&V.edit!==nd)delete S.shifts[V.edit];
+ S.shifts[nd]=V.job==='side'?{...val,job:'side'}:val;V.m=pd(nd);V.tab='main';V.edit=null;save();ok();render()}
+app.onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;hap();const a=b.dataset.a;
+ if(a==='prev'||a==='next'){mshift(a==='next'?1:-1)}
+ else if(a==='today'){V.m=new Date();render()}
+ else if(a==='day'){V.edit=S.shifts[b.dataset.d]?b.dataset.d:null;V.date=b.dataset.d;V.job=(S.shifts[b.dataset.d]||{}).job||'main';V.tab='form';render()}
+ else if(a==='back'){V.tab='main';render()}
+ else if(a==='per'){V.per=b.dataset.p;render()}
+ else if(a==='sj')sjump(+b.dataset.d)
+ else if(a==='save')saveShift()
+ else if(a==='job'){V.job=b.dataset.j;document.querySelectorAll('#fj .chip').forEach(c=>c.classList.toggle('on',c.dataset.j===V.job))}
+ else if(a==='plan')put(0,{st:'plan'});
+ else if(a==='del')ask('Удалить смену? Это действие нельзя отменить.',()=>{delete S.shifts[V.edit];V.tab='main';V.edit=null;save();render()})
+ else if(a==='exp'){const t=$('#io');t.value=JSON.stringify(S);t.select();try{navigator.clipboard.writeText(t.value);toast('Скопировано')}catch(e){toast('Выделите и скопируйте текст')}}
+ else if(a==='imp'){let o;try{o=JSON.parse($('#io').value);if(!o.shifts)throw 0}catch(e){return toast('Не удалось прочитать данные')}
+  ask('Импорт заменит все текущие смены данными из поля. Продолжить?',()=>{S={shifts:o.shifts,set:Object.assign(S.set,o.set)};save();toast('Данные загружены');render()})}};
+document.querySelector('.bar').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;hap();
+ if(b.dataset.a==='add'){V.edit=null;V.job='main';V.date=ds(new Date());V.tab='form'}else V.tab=b.dataset.t;render()};
+app.oninput=()=>{if(V.tab==='form')prev()};
+app.onchange=e=>{const i=e.target;
+ if(i.dataset.s){S.set[i.dataset.s]=i.dataset.s==='cur'?(i.value.trim()||'₽'):num(i.value);save()}
+ else if(i.id==='pf'||i.id==='pt'){V.from=$('#pf').value;V.to=$('#pt').value;render()}};
+
+if(tg){tg.ready();tg.expand();theme();tg.onEvent('themeChanged',theme)}
+if(BB)BB.onClick(()=>{hap();V.tab='main';V.edit=null;render()});
+if(MB){MB.setText('Сохранить смену');MB.onClick(()=>{hap();saveShift()})}
+let tx=0,ty=0,sw=true;
+document.addEventListener('touchstart',e=>{const t=e.touches[0];tx=t.clientX;ty=t.clientY;sw=!e.target.closest('.chips,input,textarea')},{passive:true});
+document.addEventListener('touchend',e=>{if(!loaded||!sw||(V.tab!=='main'&&V.tab!=='stats'))return;const t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;
+ if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){hap();const d=dx<0?1:-1;V.tab==='main'?mshift(d):sjump(d)}},{passive:true});
+render();
+load().then(()=>{loaded=true;render();if(cloudFail)toast('Облако не отвечает: данные из локальной копии')});
+</script></body></html>
